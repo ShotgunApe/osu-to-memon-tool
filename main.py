@@ -4,12 +4,14 @@ import sys
 grablines = False
 timingpointRaw = []
 
-#open .osu file from folder
+#open .osu file from folder and read timing points
 with open(sys.argv[1], encoding="utf-8") as i:
 
-    #loop
     for line in i.readlines():
+
+        #only get lines from timing points section of .osu
         if grablines:
+
             #create list for each timing point
             tempTimingLine = []
 
@@ -17,7 +19,7 @@ with open(sys.argv[1], encoding="utf-8") as i:
             temp = line.strip("\n")
             dataLine = temp.split(',')
 
-            #ignore unnecessary data + append to lineList
+            #ignore unnecessary data + append to tempTimingLine
             count = 0
             if len(dataLine) != 1:
                 if float(dataLine[1]) < 0:
@@ -27,58 +29,62 @@ with open(sys.argv[1], encoding="utf-8") as i:
                         tempTimingLine.append(float(i))
                     count = count + 1
 
-                #append to entire timing data
+                #append to timing data
                 timingpointRaw.append(tempTimingLine)
 
+        #check to read .osu file in correct position
         if line == "[TimingPoints]\n" or (line == "\n" and grablines):
             grablines = not grablines 
 
-#temp
+#create data convert .osu bpm data into .memon-friendly format
+#keeps track of offset -> beat conv.
+beat_data = []
 
-#create data
-start_offset = float(timingpointRaw[0][0]/1000)
-#convert .osu bpm data into .memon-friendly format
+#bpm_data is the final timing data insert into .memon file
 bpm_data = []
-beat = 0
+
+start_offset = float(timingpointRaw[0][0]/1000)
 previousOffset = timingpointRaw[0][0]
 previousTiming = timingpointRaw[0][1]
 firstTimingPoint = True
 
-#required to keep track in tick form kinda
-beat_data = []
-
 for timing_point in timingpointRaw:
     beat = 0
+
     if firstTimingPoint:
+        #calculate bpm
         realBPM = 1 / timing_point[1] * 60000
-        bpm_data.append({"beat": beat * 240, "bpm": realBPM})
+
+        #first timing point has first beat at 0
+        bpm_data.append({"beat": beat, "bpm": realBPM})
         firstTimingPoint = False
+
+        #set previous offset and previous timing
         previousOffset = timing_point[0]
         previousTiming = timing_point[1]
 
     else:
-        #some calcs made from previous bpm info, add prevoffset at bottom
+        #calculate BPM
         realBPM = 1 / timing_point[1] * 60000
 
+        #keep track of "beat data" - position in .memon file where next timing point should be placed
         beat_data.append(int(round((timing_point[0] - previousOffset) / previousTiming)))
         for i in beat_data:
             beat = beat + (i * 240)
         bpm_data.append({"beat": beat, "bpm": realBPM})
 
+        #save previous offset/timing for beat position
         previousOffset = timing_point[0]
         previousTiming = timing_point[1]
 
-
-
-#buncha buncha json data
+#.memon json formatting
 json_data = {"version": "1.0.0",
              "metadata": {},
              "timing":   {"offset": start_offset, "bpms": bpm_data},
-             #this the good shit yo
              "data":     {"EXT": {"level": 10, "resolution": 240, "notes": [] } }
              }
 
-#format data
+#create formatted string
 json_formatted_str = json.dumps(json_data, indent=4)
 
 #write to output .memon file
