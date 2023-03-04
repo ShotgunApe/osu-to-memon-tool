@@ -101,7 +101,7 @@ json_data = {"version": "1.0.0",
 json_formatted_str = json.dumps(json_data, indent=4)
 
 #write to output .memon file
-with open('output.memon', 'w') as f:
+with open('conversions/'+sys.argv[1].removesuffix('.osu').removeprefix('.\\')+'.memon', 'w') as f:
     f.write(json_formatted_str)
 
 print("done!")
