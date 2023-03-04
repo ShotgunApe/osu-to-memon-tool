@@ -8,6 +8,11 @@ cmd: `python3 main.py "[path_to_file.osu]"`
 
 Will produce output.memon file in 1.0.0 format. Afterward you'll need to add .ogg file to chart folder in F.E.I.S.
 
+# Todo:
+Fix inaccurate timing points in more complex timing
+Do audio stuff automatically
+GUI?
+
 # Resources:
 https://github.com/Stepland/memon
 
