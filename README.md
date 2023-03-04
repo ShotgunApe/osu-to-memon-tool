@@ -7,10 +7,10 @@ VERY UNTESTED, most definitely wont work with every beatmap. You'll have better 
 - Install python3
 - Run cmd: `python3 main.py "[path_to_file.osu]"`
 
-Will produce output.memon file in 1.0.0 format. Afterward you'll need to add .ogg file to chart folder in F.E.I.S.
+Will produce [filename].memon file in 1.0.0 format in /conversions. Afterward you'll need to add .ogg file to chart folder in F.E.I.S.
 
 ## Todo:
-- Fix inaccurate timing points in more complex timing
+- ~~Fix inaccurate timing points in more complex timing~~ Should be more accurate
 
 - Do audio stuff automatically
 
