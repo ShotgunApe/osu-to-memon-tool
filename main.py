@@ -4,6 +4,12 @@ import sys
 grablines = False
 timingpointRaw = []
 
+def handle_remainder(remainder):
+    remainder = remainder * 100
+    if remainder > 97:
+        return [0,100]
+    return [int(remainder),100]
+
 #open .osu file from folder and read timing points
 with open(sys.argv[1], encoding="utf-8") as i:
 
@@ -70,8 +76,14 @@ for timing_point in timingpointRaw:
 
         #keep track of "beat data" - position in .memon file where next timing point should be placed
         beat_data.append((timing_point[0] - previousOffset) / previousTiming)
+        
         for i in beat_data:
-            beat[0] = beat[0] + round(i)
+            beat[0] = beat[0] + i
+        #calculate other beat information from decimal of beat[0]
+        tempBeat = beat[0] % 1
+        beat[0] = int(beat[0])
+        beat[1] = handle_remainder(tempBeat)[0]
+        beat[2] = handle_remainder(tempBeat)[1]
         bpm_data.append({"beat": beat, "bpm": realBPM})
 
         #save previous offset/timing for beat position
