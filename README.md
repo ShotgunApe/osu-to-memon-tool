@@ -1,4 +1,4 @@
-# osz-to-memon-tool
+# osu-to-memon-tool
 Convert timing points found in .osu file formats into .memon for charting purposes
 
 # usage:
