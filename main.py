@@ -77,11 +77,18 @@ for timing_point in timingpointRaw:
         #keep track of "beat data" - position in .memon file where next timing point should be placed
         beat_data.append((timing_point[0] - previousOffset) / previousTiming)
         
+        #filter rounding error
         for i in beat_data:
-            beat[0] = beat[0] + i
+            if (i % 1) > 0.99 or (i % 1) < 0.01:
+                beat[0] = beat[0] + round(i)
+            else:
+                beat[0] = beat[0] + i
+
         #calculate other beat information from decimal of beat[0]
         tempBeat = beat[0] % 1
-        beat[0] = int(beat[0])
+
+        #set beat values
+        beat[0] = round(beat[0])
         beat[1] = handle_remainder(tempBeat)[0]
         beat[2] = handle_remainder(tempBeat)[1]
         bpm_data.append({"beat": beat, "bpm": realBPM})
