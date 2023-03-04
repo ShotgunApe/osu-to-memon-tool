@@ -49,14 +49,15 @@ previousTiming = timingpointRaw[0][1]
 firstTimingPoint = True
 
 for timing_point in timingpointRaw:
-    beat = 0
+    #use symbolic time array to keep track of beat
+    beat = [0,0,1]
 
     if firstTimingPoint:
         #calculate bpm
         realBPM = 1 / timing_point[1] * 60000
 
         #first timing point has first beat at 0
-        bpm_data.append({"beat": beat, "bpm": realBPM})
+        bpm_data.append({"beat": [0,0,1], "bpm": realBPM})
         firstTimingPoint = False
 
         #set previous offset and previous timing
@@ -68,9 +69,9 @@ for timing_point in timingpointRaw:
         realBPM = 1 / timing_point[1] * 60000
 
         #keep track of "beat data" - position in .memon file where next timing point should be placed
-        beat_data.append(int(round((timing_point[0] - previousOffset) / previousTiming)))
+        beat_data.append((timing_point[0] - previousOffset) / previousTiming)
         for i in beat_data:
-            beat = beat + (i * 240)
+            beat[0] = beat[0] + round(i)
         bpm_data.append({"beat": beat, "bpm": realBPM})
 
         #save previous offset/timing for beat position
