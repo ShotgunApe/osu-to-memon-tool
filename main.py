@@ -5,7 +5,7 @@ grablines = False
 timingpointRaw = []
 
 #open .osu file from folder
-with open(sys.argv[1], "r") as i:
+with open(sys.argv[1], encoding="utf-8") as i:
 
     #loop
     for line in i.readlines():
