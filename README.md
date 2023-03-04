@@ -1,8 +1,8 @@
 # osu-to-memon-tool
 Convert timing points found in .osu file formats into .memon for charting purposes
 
-# usage:
-VERY UNTESTED, likely wont work w/ every beatmap. You'll have better luck with beatmaps whose timing points are snapped to previous point
+# Usage:
+VERY UNTESTED, likely wont work w/ every beatmap. You'll have better luck with beatmaps whose timing points are snapped to previous timing point
 
 cmd: `python3 main.py "[path_to_file.osu]"`
 
