@@ -5,12 +5,12 @@ Convert timing points found in .osu files into .memon for charting purposes
 VERY UNTESTED, most definitely wont work with every beatmap. You'll have better luck with beatmaps whose timing points are snapped to the previous timing point.
 
 - Install python3
-- Run cmd: `python3 main.py "[path_to_file.osu]"`
+- Run cmd: `python3 osu-memon.py [-h] [-r RESOLUTION] [-n NAME] PATH`
 
-Will produce [filename].memon file in 1.0.0 format in /conversions. Afterward you'll need to add .ogg file to chart folder in F.E.I.S.
+Will produce 1.0.0 .memon file in /conversions. Afterward you'll need to add .ogg file to chart folder in F.E.I.S.
 
 ## Todo:
-- ~~Fix inaccurate timing points in more complex timing~~ Should be more accurate
+- Fix math
 
 - Do audio stuff automatically
 
