@@ -15,7 +15,7 @@ This will produce a 1.0.0 .memon file in /conversions. Afterward you'll need to 
 
 #### Example: 
 
-`python3 osu-memon.py -r 300 -n "theyaremanycolors" "C:\osu!\Songs\1416051 Frums - theyaremanycolors\Frums - theyaremanycolors (Ancelysia) [visiblelightspectrum].osu"` produces `theyaremanycolors.memon` with a resolution of 300 ticks
+`python3 osu-memon.py -r 300 -n "theyaremanycolors" "C:\[path_to_beatmap]\[filename].osu"` produces `theyaremanycolors.memon` with a resolution of 300 ticks
 
 ## Todo:
 - Fix math
