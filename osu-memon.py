@@ -1,6 +1,11 @@
 import json
 import argparse
 
+HIGH_ROUNDING_CUTOFF = 0.99
+LOW_ROUNDING_CUTOFF = 0.01
+BPM_CALCULATION_CONSTANT = 60000
+REMAINDER_CUTOFF = 97
+
 #command line options
 def parse_args():
     #init argparse
@@ -8,7 +13,7 @@ def parse_args():
 
     # ~options~
     parser.add_argument('-r', type=int, help = 'sets number of ticks in a beat for all the notes in a chart', default=240, metavar='RESOLUTION')
-    parser.add_argument('-n', help = 'name of output file to be made', default='[filename].memon', metavar='NAME')
+    parser.add_argument('-n', help = 'name of output file to be made', default='[file_name].memon', metavar='NAME')
     parser.add_argument('PATH', help = 'path to .osu file')
 
     argument = parser.parse_args()
@@ -24,59 +29,59 @@ def convert_timing_data(timing_data):
     #bpm_data is the final timing data insert into .memon file
     bpm_data = []
 
-    previousOffset = timingpointRaw[0][0]
-    previousTiming = timingpointRaw[0][1]
-    firstTimingPoint = True
+    previous_offset = timingpoint_raw[0][0]
+    previous_timing = timingpoint_raw[0][1]
+    first_timing_point = True
 
     for timing_point in timing_data:
         #use symbolic time array to keep track of beat
         beat = [0,0,1]
 
-        if firstTimingPoint:
+        if first_timing_point:
             #calculate bpm
-            realBPM = 1 / timing_point[1] * 60000
+            real_bpm = 1 / timing_point[1] * BPM_CALCULATION_CONSTANT
 
             #first timing point has first beat at 0
-            bpm_data.append({"beat": [0,0,1], "bpm": realBPM})
-            firstTimingPoint = False
+            bpm_data.append({"beat": [0,0,1], "bpm": real_bpm})
+            first_timing_point = False
 
             #set previous offset and previous timing
-            previousOffset = timing_point[0]
-            previousTiming = timing_point[1]
+            previous_offset = timing_point[0]
+            previous_timing = timing_point[1]
 
         else:
             #calculate BPM
-            realBPM = 1 / timing_point[1] * 60000
+            real_bpm = 1 / timing_point[1] * BPM_CALCULATION_CONSTANT
 
             #keep track of "beat data" - position in .memon file where next timing point should be placed
-            beat_data.append((timing_point[0] - previousOffset) / previousTiming)
+            beat_data.append((timing_point[0] - previous_offset) / previous_timing)
 
             #filter rounding error
             for i in beat_data:
-                if (i % 1) > 0.99 or (i % 1) < 0.01:
+                if (i % 1) > HIGH_ROUNDING_CUTOFF or (i % 1) < LOW_ROUNDING_CUTOFF:
                     beat[0] = beat[0] + round(i)
                 else:
                     beat[0] = beat[0] + i
 
             #calculate other beat information from decimal of beat[0]
-            tempBeat = beat[0] % 1
+            temp_beat = beat[0] % 1
 
             #set beat values
             beat[0] = round(beat[0])
-            beat[1] = handle_remainder(tempBeat)[0]
-            beat[2] = handle_remainder(tempBeat)[1]
-            bpm_data.append({"beat": beat, "bpm": realBPM})
+            beat[1] = handle_remainder(temp_beat)[0]
+            beat[2] = handle_remainder(temp_beat)[1]
+            bpm_data.append({"beat": beat, "bpm": real_bpm})
 
             #save previous offset/timing for beat position
-            previousOffset = timing_point[0]
-            previousTiming = timing_point[1]
+            previous_offset = timing_point[0]
+            previous_timing = timing_point[1]
     
     return bpm_data
 
 #handle remainder with rounding error
 def handle_remainder(remainder):
     remainder = remainder * 100
-    if remainder > 97:
+    if remainder > REMAINDER_CUTOFF:
         return [0,100]
     return [int(remainder),100]
 
@@ -84,63 +89,63 @@ def handle_remainder(remainder):
 if __name__ == '__main__':
 
     #raw timing data from .osu file
-    timingpointRaw = []
+    timingpoint_raw = []
 
     with open(parse_args().PATH, encoding = "utf-8") as file:
         #check whether to grab lines in .osu file
-        grablines = False
+        grab_lines = False
 
         for line in file.readlines():
             #only get lines from timing points section of .osu
-            if grablines:
+            if grab_lines:
 
                 #create list for each timing point
-                tempTimingLine = []
+                temp_timing_line = []
 
                 #split accordingly
                 temp = line.strip("\n")
-                dataLine = temp.split(',')
+                data_line = temp.split(',')
 
-                #ignore unnecessary data + append to tempTimingLine
+                #ignore unnecessary data + append to temp_timing_line
                 count = 0
-                if len(dataLine) != 1:
-                    if float(dataLine[1]) < 0:
+                if len(data_line) != 1:
+                    if float(data_line[1]) < 0:
                         continue
-                    for i in dataLine:
+                    for i in data_line:
                         if count < 2:
-                            tempTimingLine.append(float(i))
+                            temp_timing_line.append(float(i))
                         count = count + 1
 
                     #append to timing data
-                    timingpointRaw.append(tempTimingLine)
+                    timingpoint_raw.append(temp_timing_line)
 
             #check to read .osu file in correct position
-            if line == "[TimingPoints]\n" or (line == "\n" and grablines):
-                grablines = not grablines 
+            if line == "[TimingPoints]\n" or (line == "\n" and grab_lines):
+                grab_lines = not grab_lines 
 
     #audio offset
-    start_offset = float(timingpointRaw[0][0]/1000)
+    start_offset = float(timingpoint_raw[0][0]/1000)
 
     #.memon json formatting
     json_data = {"version": "1.0.0",
                  "metadata": {},
-                 "timing":   {"offset": start_offset, "bpms": convert_timing_data(timingpointRaw)},
+                 "timing":   {"offset": start_offset, "bpms": convert_timing_data(timingpoint_raw)},
                  "data":     {"EXT": {"level": 10, "resolution": parse_args().r, "notes": [] } }
                  }
 
     #create formatted string
     json_formatted_str = json.dumps(json_data, indent=4)
 
-    filename = ""
+    file_name = ""
 
     #check which name to use
-    if parse_args().n != '[filename].memon':
-        filename = parse_args().n + '.memon'
+    if parse_args().n != '[file_name].memon':
+        file_name = parse_args().n + '.memon'
     else:
-        filename = parse_args().PATH.removesuffix('.osu').removeprefix('.\\')+'.memon'
+        file_name = parse_args().PATH.removesuffix('.osu').removeprefix('.\\')+'.memon'
 
     #write to output .memon file
-    with open('conversions/'+filename, 'w') as f:
+    with open('conversions/'+file_name, 'w') as f:
         f.write(json_formatted_str)
 
-    print("done!")
+    print("Done!")
