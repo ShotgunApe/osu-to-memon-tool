@@ -6,8 +6,16 @@ VERY UNTESTED, most definitely wont work with every beatmap. You'll have better 
 
 - Install python3
 - Run cmd: `python3 osu-memon.py [-h] [-r RESOLUTION] [-n NAME] PATH`
+#### Options:
+- `-r RESOLUTION`  -   sets number of ticks in a beat for all the notes in a chart (default: 240)
+- `-n NAME`        -   name of output file to be made (default: [filename].memon)
+- `PATH` is the path to your .osu file
 
-Will produce 1.0.0 .memon file in /conversions. Afterward you'll need to add .ogg file to chart folder in F.E.I.S.
+This will produce a 1.0.0 .memon file in /conversions. Afterward you'll need to add .ogg file to chart folder in F.E.I.S.
+
+#### Example: 
+
+`python3 osu-memon.py -r 300 -n "theyaremanycolors" "C:\osu!\Songs\1416051 Frums - theyaremanycolors\Frums - theyaremanycolors (Ancelysia) [visiblelightspectrum].osu"` produces `theyaremanycolors.memon` with a resolution of 300 ticks
 
 ## Todo:
 - Fix math
